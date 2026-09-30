@@ -471,7 +471,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderizarListaAsistencia();
 
   // ==========================================
-  // 6. GENERADOR DE PDF NATIVO PARA TODOS LOS MÓDULOS
+  // 6. GENERADOR DE PDF NATIVO PROFESIONAL
   // ==========================================
   document.querySelectorAll(".btn-descargar-pdf").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -651,14 +651,17 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       const ventanaImpresion = window.open("", "_blank", "width=800,height=900");
+      if (!ventanaImpresion) {
+        alert("El navegador bloqueó la ventana emergente. Por favor permita las ventanas emergentes para este sitio.");
+        return;
+      }
       ventanaImpresion.document.write(contenidoHTML);
       ventanaImpresion.document.close();
 
       setTimeout(() => {
         ventanaImpresion.focus();
         ventanaImpresion.print();
-        ventanaImpresion.close();
-      }, 300);
+      }, 400);
     });
   });
 
