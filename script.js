@@ -471,197 +471,20 @@ document.addEventListener("DOMContentLoaded", () => {
   renderizarListaAsistencia();
 
   // ==========================================
-  // 6. GENERADOR DE PDF NATIVO PROFESIONAL
+  // 6. GENERADOR DE PDF / IMPRESIÓN NATIVA
   // ==========================================
   document.querySelectorAll(".btn-descargar-pdf").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const botonPresionado = e.currentTarget;
       const targetId = botonPresionado.getAttribute("data-form");
+      const elementoAImprimir = document.getElementById(targetId);
 
-      const correlativo = document.getElementById("correlativo-cia")?.value || "S-N";
-      const fecha = document.getElementById("fecha-acto")?.value || new Date().toISOString().slice(0, 10);
-
-      let contenidoHTML = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <title>Reporte Oficial - Bomba O'Higgins</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; color: #111; font-size: 13px; }
-            .header { text-align: center; border-bottom: 3px solid #006B3F; padding-bottom: 10px; margin-bottom: 20px; }
-            .header h2 { color: #006B3F; margin: 0; font-size: 18px; }
-            .header p { color: #8B8000; margin: 5px 0 0 0; font-weight: bold; font-size: 12px; }
-            table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-            th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-            th { background-color: #006B3F; color: white; }
-            .cuartel-th { background-color: #333; color: white; }
-            .info-table td { border: none; padding: 4px; }
-            .section-title { color: #006B3F; border-bottom: 2px solid #006B3F; margin-top: 20px; margin-bottom: 10px; font-size: 14px; }
-            .box { border: 1px solid #ccc; padding: 10px; background: #f9f9f9; line-height: 1.4; }
-            @media print {
-              @page { margin: 15mm; size: letter; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <h2>PRIMERA COMPAÑÍA BOMBA O'HIGGINS</h2>
-            <p>CUERPO DE BOMBEROS DE RANCAGUA — REPORTE OFICIAL DE SERVICIO</p>
-          </div>
-      `;
-
-      if (targetId === "pills-general") {
-        const obs = document.getElementById("observaciones-parte")?.value || "Sin observaciones.";
-
-        let filasAsistentes = "";
-        asistentesAgregados.forEach(v => {
-          filasAsistentes += `<tr><td style="width: 10%; font-weight: bold;">${v.num}</td><td>${v.nombre}</td><td style="width: 20%; text-align: center;">${v.tipo}</td></tr>`;
-        });
-
-        let filasCuartel = "";
-        personalCuartelAgregado.forEach(v => {
-          filasCuartel += `<tr><td style="width: 10%; font-weight: bold;">${v.num}</td><td>${v.nombre}</td><td style="width: 20%; text-align: center;">${v.tipo}</td></tr>`;
-        });
-
-        contenidoHTML += `
-          <table class="info-table">
-            <tr>
-              <td style="font-weight: bold; width: 18%;">Correlativo Cía:</td><td style="width: 32%;">${correlativo}</td>
-              <td style="font-weight: bold; width: 18%;">Correlativo Gen:</td><td style="width: 32%;">${document.getElementById("correlativo-gen")?.value || "S-N"}</td>
-            </tr>
-            <tr>
-              <td style="font-weight: bold;">Fecha:</td><td>${fecha}</td>
-              <td style="font-weight: bold;">Hora:</td><td>${document.getElementById("hora-acto")?.value || "N/E"}</td>
-            </tr>
-            <tr>
-              <td style="font-weight: bold;">Clave del Acto:</td><td>${document.getElementById("clave-acto")?.value || "N/E"}</td>
-              <td style="font-weight: bold;">Dirección:</td><td>${document.getElementById("direccion-acto")?.value || "N/E"} (${document.getElementById("poblacion-villa")?.value || "N/E"})</td>
-            </tr>
-          </table>
-
-          <div class="section-title">1. Personal Asistente al Acto</div>
-          <table>
-            <thead>
-              <tr><th>N°</th><th>Nombre Completo</th><th style="text-align: center;">Calidad</th></tr>
-            </thead>
-            <tbody>
-              ${filasAsistentes || '<tr><td colspan="3" style="text-align: center;">Sin voluntarios registrados en el acto.</td></tr>'}
-            </tbody>
-          </table>
-
-          <div class="section-title">2. Personal Permaneció en Cuartel</div>
-          <table>
-            <thead>
-              <tr><th class="cuartel-th">N°</th><th class="cuartel-th">Nombre Completo</th><th class="cuartel-th" style="text-align: center;">Calidad</th></tr>
-            </thead>
-            <tbody>
-              ${filasCuartel || '<tr><td colspan="3" style="text-align: center;">Sin personal registrado en cuartel.</td></tr>'}
-            </tbody>
-          </table>
-
-          <div class="section-title">3. Observaciones / Resumen del Servicio</div>
-          <div class="box">${obs.replace(/\n/g, '<br>')}</div>
-        `;
-      } else if (targetId === "pills-vehicular") {
-        const obsRescate = document.getElementById("obs-rescate-vehicular")?.value || "Sin observaciones.";
-        const fechaVeh = document.getElementById("fecha-veh")?.value || fecha;
-        const horaVeh = document.getElementById("hora-veh")?.value || "N/E";
-        const claveVeh = document.getElementById("clave-vehicular")?.value || "N/E";
-        const dirVeh = document.getElementById("direccion-veh")?.value || "N/E";
-
-        let filasRescate = "";
-        asistentesRescateAgregados.forEach(v => {
-          filasRescate += `<tr><td style="width: 10%; font-weight: bold;">${v.num}</td><td>${v.nombre}</td><td style="width: 20%; text-align: center;">${v.tipo}</td></tr>`;
-        });
-
-        contenidoHTML += `
-          <div style="font-weight: bold; margin-bottom: 10px; color: #006B3F; font-size: 15px;">PARTE ESPECIAL DE RESCATE VEHICULAR</div>
-          <table class="info-table">
-            <tr>
-              <td style="font-weight: bold; width: 18%;">Fecha:</td><td style="width: 32%;">${fechaVeh}</td>
-              <td style="font-weight: bold; width: 18%;">Hora:</td><td style="width: 32%;">${horaVeh}</td>
-            </tr>
-            <tr>
-              <td style="font-weight: bold;">Clave:</td><td>${claveVeh}</td>
-              <td style="font-weight: bold;">Dirección:</td><td>${dirVeh}</td>
-            </tr>
-          </table>
-
-          <div class="section-title">Personal Asistente al Rescate Vehicular</div>
-          <table>
-            <thead>
-              <tr><th>N°</th><th>Nombre Completo</th><th style="text-align: center;">Calidad</th></tr>
-            </thead>
-            <tbody>
-              ${filasRescate || '<tr><td colspan="3" style="text-align: center;">Sin voluntarios registrados en el rescate.</td></tr>'}
-            </tbody>
-          </table>
-
-          <div class="section-title">Observaciones del Rescate</div>
-          <div class="box">${obsRescate.replace(/\n/g, '<br>')}</div>
-        `;
-      } else if (targetId === "pills-asistencia") {
-        let filasAsistenciaCompleta = "";
-        let totalPresentes = 0;
-        const fechaCitacion = document.getElementById("fecha-citacion-asistencia")?.value || fecha;
-        const tipoCitacion = document.getElementById("tipo-citacion-asistencia")?.value || "Citación";
-
-        voluntariosCompania.forEach(vol => {
-          const presente = registroAsistencia[vol.num];
-          if (presente) totalPresentes++;
-          filasAsistenciaCompleta += `
-            <tr>
-              <td style="width: 10%; font-weight: bold; text-align: center;">${vol.num}</td>
-              <td>${vol.nombre}</td>
-              <td style="width: 20%; text-align: center;">${vol.tipo}</td>
-              <td style="width: 20%; text-align: center; font-weight: bold; color: ${presente ? '#006B3F' : '#666'};">
-                ${presente ? 'PRESENTE' : 'AUSENTE'}
-              </td>
-            </tr>
-          `;
-        });
-
-        contenidoHTML += `
-          <div style="margin-bottom: 15px; font-weight: bold;">
-            Actividad: ${tipoCitacion} | Fecha: ${fechaCitacion} | Total Presentes: ${totalPresentes} / ${voluntariosCompania.length}
-          </div>
-          <div class="section-title">Nómina General de Asistencia de Compañía</div>
-          <table>
-            <thead>
-              <tr>
-                <th style="text-align: center;">N°</th>
-                <th>Nombre Completo</th>
-                <th style="text-align: center;">Calidad</th>
-                <th style="text-align: center;">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filasAsistenciaCompleta}
-            </tbody>
-          </table>
-        `;
-      } else {
-        contenidoHTML += `<p style="text-align: center; padding: 20px;">Reporte Oficial de Servicio.</p>`;
-      }
-
-      contenidoHTML += `
-        </body>
-        </html>
-      `;
-
-      const ventanaImpresion = window.open("", "_blank", "width=800,height=900");
-      if (!ventanaImpresion) {
-        alert("El navegador bloqueó la ventana emergente. Por favor permita las ventanas emergentes para este sitio.");
+      if (!elementoAImprimir) {
+        alert("No se encontró el formulario para generar el reporte.");
         return;
       }
-      ventanaImpresion.document.write(contenidoHTML);
-      ventanaImpresion.document.close();
 
-      setTimeout(() => {
-        ventanaImpresion.focus();
-        ventanaImpresion.print();
-      }, 400);
+      window.print();
     });
   });
 
